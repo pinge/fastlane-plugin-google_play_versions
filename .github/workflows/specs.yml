@@ -10,7 +10,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    name: rake specs
+    name: rspec
     steps:
       - name: Check
         uses: actions/checkout@v5
