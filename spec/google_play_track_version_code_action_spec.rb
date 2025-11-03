@@ -31,8 +31,8 @@ describe Fastlane::Actions::GooglePlayTrackVersionCodeAction do
       end
     end
 
-    context "when archived or inactive app bundles exist" do
-      let(:aab_version_codes) { [18874903, 18874900] }
+    context "when archived or inactive app bundles exist with a higher version code" do
+      let(:aab_version_codes) { [track_version_codes.max + 1] }
 
       it "returns the highest version code" do
         allow(described_class).to receive(:other_action).and_return(other_action_double)
@@ -47,11 +47,59 @@ describe Fastlane::Actions::GooglePlayTrackVersionCodeAction do
           .and_return(aab_version_codes)
 
         expect(Fastlane::UI).to receive(:success)
-          .with("Found '#{aab_version_codes.first}' as the latest version code on the 'production' track")
+          .with("Found '#{aab_version_codes.max}' as the latest version code on the 'production' track")
 
         result = described_class.run(params)
 
         expect(result).to eq(aab_version_codes.first)
+      end
+    end
+
+    context "when archived or inactive app bundles exist with a higher different base (e.g. different architecture)" do
+      let(:aab_version_codes) { [3145877] }
+
+      it "returns the highest version code related to the version codes on the track" do
+        allow(described_class).to receive(:other_action).and_return(other_action_double)
+        allow(Fastlane::UI).to receive(:success)
+
+        expect(other_action_double).to receive(:google_play_track_version_codes)
+          .with(package_name: params[:package_name], track: params[:track])
+          .and_return(track_version_codes)
+
+        expect(Fastlane::Helper::GooglePlayVersionsHelper).to receive(:aab_version_codes)
+          .with(params)
+          .and_return(aab_version_codes)
+
+        expect(Fastlane::UI).to receive(:success)
+          .with("Found '#{track_version_codes.max}' as the latest version code on the 'production' track")
+
+        result = described_class.run(params)
+
+        expect(result).to eq(track_version_codes.max)
+      end
+    end
+
+    context "when archived or inactive app bundles exist with a higher version code and a higher different base (e.g. different architecture)" do
+      let(:aab_version_codes) { [3145877, track_version_codes.max + 1] }
+
+      it "returns the highest version code related to the version codes on the track" do
+        allow(described_class).to receive(:other_action).and_return(other_action_double)
+        allow(Fastlane::UI).to receive(:success)
+
+        expect(other_action_double).to receive(:google_play_track_version_codes)
+          .with(package_name: params[:package_name], track: params[:track])
+          .and_return(track_version_codes)
+
+        expect(Fastlane::Helper::GooglePlayVersionsHelper).to receive(:aab_version_codes)
+          .with(params)
+          .and_return(aab_version_codes)
+
+        expect(Fastlane::UI).to receive(:success)
+          .with("Found '#{track_version_codes.max + 1}' as the latest version code on the 'production' track")
+
+        result = described_class.run(params)
+
+        expect(result).to eq(track_version_codes.max + 1)
       end
     end
 

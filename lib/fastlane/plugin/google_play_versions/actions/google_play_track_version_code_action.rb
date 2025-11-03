@@ -26,13 +26,21 @@ module Fastlane
           UI.important("Could not find any app bundles with version codes on the '#{params[:track]}' track")
           return 0
         end
-        version_code = (track_version_codes + aab_version_codes).max
+        max_track_version_code = track_version_codes.max
+        if max_track_version_code.to_s.size >= 4
+          related_aab_version_codes = aab_version_codes.select do |version_code|
+            version_code.to_s[0..4].to_i == max_track_version_code.to_s[0..4].to_i
+          end
+          version_code = (track_version_codes + related_aab_version_codes).max
+        else
+          version_code = (track_version_codes + aab_version_codes).max
+        end
         UI.success("Found '#{version_code}' as the latest version code on the '#{params[:track]}' track")
         version_code
       end
 
       def self.description
-        "Fetch the most recent build version code from a Play Store track from within Fastlane."
+        "Fetch the most recent version code from a Play Store track from within Fastlane."
       end
 
       def self.details
