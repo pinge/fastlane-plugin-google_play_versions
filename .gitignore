@@ -1,0 +1,13 @@
+.bundle/
+.DS_Store
+*.gem
+/log/
+/tmp/
+/spec/reports/
+/.idea/
+/.vscode/
+coverage/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
