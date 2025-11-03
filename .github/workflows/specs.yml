@@ -44,11 +44,11 @@ jobs:
             try {
               output = fs.readFileSync('spec_output.txt', 'utf8');
             } catch (error) {
-              output = 'rake spec output not available.';
+              output = 'rspec output not available.';
             }
             const success = '${{ steps.run_specs.outcome }}' === 'success';
             const body = [
-              success ? '✅ `rake spec`' : '❌ `rake spec`',
+              success ? '✅ `rspec`' : '❌ `rspec`',
               '',
               '```',
               output,

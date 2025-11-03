@@ -22,6 +22,10 @@ module Fastlane
           track: params[:track]
         )
         aab_version_codes = Helper::GooglePlayVersionsHelper.aab_version_codes(config)
+        if aab_version_codes.empty? && track_version_codes.empty?
+          UI.important("Could not find any app bundles with version codes on the '#{params[:track]}' track")
+          return 0
+        end
         version_code = (track_version_codes + aab_version_codes).max
         UI.success("Found '#{version_code}' as the latest version code on the '#{params[:track]}' track")
         version_code
