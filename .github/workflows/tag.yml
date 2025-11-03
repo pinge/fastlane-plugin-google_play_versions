@@ -1,0 +1,30 @@
+name: Tag
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    name: Tag
+    if: ${{ github.event.pull_request.merged && github.event.pull_request.base.ref == 'main' && contains(github.event.pull_request.labels.*.name, 'release') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Tag & Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(cat lib/fastlane/plugin/google_play_versions/version.rb | grep VERSION | awk '{ print $3 }' | tr -d '"')
+          TAG="v$VERSION"
+          echo "::warning title=Tag::$TAG"
+          git tag $TAG
+          git push --tags
+          gh workflow run release.yml --ref $TAG
